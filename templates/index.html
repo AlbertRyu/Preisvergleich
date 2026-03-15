@@ -1,0 +1,795 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Preisvergleich</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg:       #0f0f0f;
+    --surface:  #1a1a1a;
+    --border:   #2a2a2a;
+    --text:     #e8e8e8;
+    --muted:    #666;
+    --accent:   #c8f03c;   /* lime */
+    --accent2:  #f03c6a;   /* red for expensive */
+    --cheap:    #3cf0a0;   /* green for cheapest */
+    --radius:   6px;
+    --mono: 'DM Mono', monospace;
+    --sans: 'Syne', sans-serif;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--sans);
+    min-height: 100vh;
+  }
+
+  /* ── Layout ── */
+  header {
+    border-bottom: 1px solid var(--border);
+    padding: 18px 32px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+  header h1 {
+    font-size: 1.1rem;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--accent);
+  }
+  header .subtitle {
+    font-family: var(--mono);
+    font-size: 0.7rem;
+    color: var(--muted);
+  }
+
+  nav {
+    display: flex;
+    gap: 4px;
+    padding: 12px 32px;
+    border-bottom: 1px solid var(--border);
+  }
+  nav button {
+    background: none;
+    border: 1px solid transparent;
+    color: var(--muted);
+    font-family: var(--sans);
+    font-size: 0.8rem;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    padding: 6px 14px;
+    border-radius: var(--radius);
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  nav button:hover { color: var(--text); border-color: var(--border); }
+  nav button.active { background: var(--accent); color: #0f0f0f; border-color: var(--accent); }
+
+  main { padding: 32px; max-width: 1400px; }
+
+  .tab { display: none; }
+  .tab.active { display: block; }
+
+  /* ── Section headings ── */
+  .section-title {
+    font-family: var(--mono);
+    font-size: 0.68rem;
+    color: var(--muted);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    margin-bottom: 14px;
+  }
+
+  /* ── Cards / panels ── */
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 20px;
+    margin-bottom: 20px;
+  }
+  .card h3 {
+    font-size: 0.85rem;
+    font-weight: 700;
+    margin-bottom: 14px;
+    color: var(--accent);
+    letter-spacing: 0.04em;
+  }
+
+  /* ── Form elements ── */
+  .form-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    align-items: flex-end;
+  }
+  .form-group { display: flex; flex-direction: column; gap: 5px; }
+  .form-group label {
+    font-family: var(--mono);
+    font-size: 0.65rem;
+    color: var(--muted);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+  input, select, textarea {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    color: var(--text);
+    font-family: var(--mono);
+    font-size: 0.82rem;
+    padding: 7px 10px;
+    border-radius: var(--radius);
+    outline: none;
+    transition: border-color 0.15s;
+  }
+  input:focus, select:focus { border-color: var(--accent); }
+  input[type="number"] { width: 100px; }
+  input[type="date"]   { width: 150px; }
+  select               { min-width: 140px; cursor: pointer; }
+
+  /* ── Buttons ── */
+  .btn {
+    font-family: var(--sans);
+    font-weight: 700;
+    font-size: 0.78rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    padding: 8px 16px;
+    border-radius: var(--radius);
+    border: none;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .btn-primary { background: var(--accent); color: #0f0f0f; }
+  .btn-primary:hover { filter: brightness(1.1); }
+  .btn-ghost {
+    background: none;
+    border: 1px solid var(--border);
+    color: var(--muted);
+  }
+  .btn-ghost:hover { border-color: var(--text); color: var(--text); }
+  .btn-danger { background: none; border: 1px solid #333; color: #666; font-size: 0.7rem; padding: 4px 8px; }
+  .btn-danger:hover { border-color: var(--accent2); color: var(--accent2); }
+  .btn-sm { padding: 5px 10px; font-size: 0.72rem; }
+
+  /* ── Tags / chips ── */
+  .tag {
+    display: inline-block;
+    font-family: var(--mono);
+    font-size: 0.65rem;
+    padding: 2px 8px;
+    border-radius: 20px;
+    background: var(--border);
+    color: var(--muted);
+  }
+
+  /* ── Lists ── */
+  .item-list { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+  .item-chip {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 5px 10px;
+    font-family: var(--mono);
+    font-size: 0.78rem;
+  }
+  .item-chip .unit-badge {
+    font-size: 0.6rem;
+    color: var(--muted);
+    border: 1px solid var(--border);
+    border-radius: 3px;
+    padding: 1px 5px;
+  }
+
+  /* ── Comparison table ── */
+  .compare-wrap { overflow-x: auto; }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-family: var(--mono);
+    font-size: 0.78rem;
+  }
+  th {
+    text-align: left;
+    font-family: var(--sans);
+    font-size: 0.65rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--muted);
+    padding: 8px 12px;
+    border-bottom: 1px solid var(--border);
+    white-space: nowrap;
+  }
+  td {
+    padding: 8px 12px;
+    border-bottom: 1px solid #1e1e1e;
+    vertical-align: middle;
+  }
+  tr:hover td { background: #161616; }
+
+  .price-cell {
+    text-align: right;
+    min-width: 90px;
+    position: relative;
+  }
+  .price-main { font-weight: 500; }
+  .price-unit {
+    display: block;
+    font-size: 0.62rem;
+    color: var(--muted);
+  }
+  .price-cell.cheapest .price-main { color: var(--cheap); }
+  .price-cell.cheapest::before {
+    content: '▼';
+    font-size: 0.55rem;
+    color: var(--cheap);
+    position: absolute;
+    left: 4px;
+    top: 50%;
+    transform: translateY(-50%);
+  }
+  .price-cell.no-data { color: #333; text-align: center; }
+  td.product-name { font-weight: 500; color: var(--text); }
+  td.product-unit { color: var(--muted); font-size: 0.7rem; }
+
+  /* savings badge */
+  .savings {
+    font-size: 0.62rem;
+    color: var(--cheap);
+    background: rgba(60,240,160,0.08);
+    border: 1px solid rgba(60,240,160,0.2);
+    border-radius: 3px;
+    padding: 1px 5px;
+    margin-left: 6px;
+  }
+
+  /* ── History ── */
+  .history-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 14px;
+    margin-top: 14px;
+  }
+  .history-store {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 14px;
+  }
+  .history-store h4 {
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: var(--accent);
+    margin-bottom: 10px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+  .history-entry {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 5px 0;
+    border-bottom: 1px solid var(--border);
+    font-family: var(--mono);
+    font-size: 0.75rem;
+  }
+  .history-entry:last-child { border-bottom: none; }
+  .history-date { color: var(--muted); font-size: 0.65rem; }
+  .history-price { font-weight: 500; }
+
+  /* ── Toast ── */
+  #toast {
+    position: fixed; bottom: 24px; right: 24px;
+    background: var(--accent); color: #0f0f0f;
+    font-family: var(--mono); font-size: 0.75rem; font-weight: 500;
+    padding: 10px 18px; border-radius: var(--radius);
+    opacity: 0; transform: translateY(8px);
+    transition: all 0.2s; pointer-events: none;
+    z-index: 999;
+  }
+  #toast.show { opacity: 1; transform: translateY(0); }
+
+  /* ── Misc ── */
+  .empty { color: var(--muted); font-family: var(--mono); font-size: 0.8rem; padding: 24px 0; }
+  .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+  @media (max-width: 700px) { .two-col { grid-template-columns: 1fr; } main { padding: 16px; } }
+  .filter-bar { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 20px; align-items: center; }
+  .filter-bar label { font-family: var(--mono); font-size: 0.65rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.08em; }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Preisvergleich</h1>
+  <span class="subtitle">// supermarkt tracker</span>
+</header>
+
+<nav>
+  <button class="active" onclick="switchTab('compare')">Vergleich</button>
+  <button onclick="switchTab('add')">Preis eintragen</button>
+  <button onclick="switchTab('manage')">Produkte & Märkte</button>
+  <button onclick="switchTab('history')">Verlauf</button>
+</nav>
+
+<main>
+
+<!-- ══════════════════════════════════════════
+     TAB 1 — COMPARE
+══════════════════════════════════════════ -->
+<div id="tab-compare" class="tab active">
+  <div class="filter-bar">
+    <label>Filter:</label>
+    <select id="compare-filter" onchange="loadCompare()">
+      <option value="">Alle Produkte</option>
+    </select>
+    <button class="btn btn-ghost btn-sm" onclick="loadCompare()">↻ Aktualisieren</button>
+  </div>
+
+  <div class="compare-wrap">
+    <div id="compare-content" class="empty">Lade…</div>
+  </div>
+</div>
+
+
+<!-- ══════════════════════════════════════════
+     TAB 2 — ADD PRICE
+══════════════════════════════════════════ -->
+<div id="tab-add" class="tab">
+  <div class="card" style="max-width:560px">
+    <h3>Neuen Preis eintragen</h3>
+    <div class="form-row" style="flex-direction:column; gap:14px">
+
+      <div class="form-group">
+        <label>Produkt *</label>
+        <select id="add-product" onchange="updateUnitHint()">
+          <option value="">– bitte wählen –</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label>Supermarkt *</label>
+        <select id="add-store">
+          <option value="">– bitte wählen –</option>
+        </select>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label>Preis (€) *</label>
+          <input type="number" id="add-price" step="0.01" min="0" placeholder="1.99">
+        </div>
+        <div class="form-group">
+          <label>Menge (<span id="unit-hint">Einheit</span>) *</label>
+          <input type="number" id="add-qty" step="0.001" min="0.001" value="1" placeholder="1">
+        </div>
+        <div class="form-group">
+          <label>Datum</label>
+          <input type="date" id="add-date">
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>Notiz (optional)</label>
+        <input type="text" id="add-notes" placeholder="z.B. Angebot, Bio…" style="width:100%">
+      </div>
+
+      <button class="btn btn-primary" onclick="submitPrice()" style="width:100%">Speichern</button>
+    </div>
+  </div>
+
+  <div class="card" style="max-width:560px">
+    <h3>Zuletzt eingetragen</h3>
+    <div id="recent-prices" class="empty">–</div>
+  </div>
+</div>
+
+
+<!-- ══════════════════════════════════════════
+     TAB 3 — MANAGE
+══════════════════════════════════════════ -->
+<div id="tab-manage" class="tab">
+  <div class="two-col">
+
+    <div class="card">
+      <h3>Produkt hinzufügen</h3>
+      <div class="form-row" style="flex-direction:column; gap:12px">
+        <div class="form-group">
+          <label>Name *</label>
+          <input type="text" id="new-product-name" placeholder="z.B. Vollmilch">
+        </div>
+        <div class="form-group">
+          <label>Einheit *</label>
+          <select id="new-product-unit">
+            <option value="L">L</option>
+            <option value="kg" selected>kg</option>
+            <option value="g">g</option>
+            <option value="ml">ml</option>
+            <option value="Stück">Stück</option>
+            <option value="Packung">Packung</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Notiz</label>
+          <input type="text" id="new-product-notes" placeholder="optional">
+        </div>
+        <button class="btn btn-primary" onclick="addProduct()">Produkt anlegen</button>
+      </div>
+      <p class="section-title" style="margin-top:20px">Vorhandene Produkte</p>
+      <div id="products-list" class="item-list"></div>
+    </div>
+
+    <div class="card">
+      <h3>Supermarkt hinzufügen</h3>
+      <div class="form-row">
+        <div class="form-group" style="flex:1">
+          <label>Name *</label>
+          <input type="text" id="new-store-name" placeholder="z.B. Globus">
+        </div>
+        <div class="form-group" style="align-self:flex-end">
+          <button class="btn btn-primary" onclick="addStore()">Hinzufügen</button>
+        </div>
+      </div>
+      <p class="section-title" style="margin-top:20px">Vorhandene Märkte</p>
+      <div id="stores-list" class="item-list"></div>
+    </div>
+
+  </div>
+</div>
+
+
+<!-- ══════════════════════════════════════════
+     TAB 4 — HISTORY
+══════════════════════════════════════════ -->
+<div id="tab-history" class="tab">
+  <div class="filter-bar">
+    <label>Produkt:</label>
+    <select id="history-product" onchange="loadHistory()">
+      <option value="">– bitte wählen –</option>
+    </select>
+  </div>
+  <div id="history-content" class="empty">Produkt auswählen, um den Preisverlauf zu sehen.</div>
+</div>
+
+</main>
+
+<div id="toast"></div>
+
+<!-- ══════════════════════════════════════════
+     JavaScript
+══════════════════════════════════════════ -->
+<script>
+// ── State ──────────────────────────────────────────────────────────────────
+let products = [];
+let stores   = [];
+
+// ── Init ───────────────────────────────────────────────────────────────────
+document.addEventListener('DOMContentLoaded', () => {
+  const today = new Date().toISOString().split('T')[0];
+  document.getElementById('add-date').value = today;
+  loadAll();
+});
+
+async function loadAll() {
+  await Promise.all([fetchProducts(), fetchStores()]);
+  populateSelects();
+  loadCompare();
+  loadRecentPrices();
+}
+
+// ── API helpers ────────────────────────────────────────────────────────────
+async function api(url, options={}) {
+  const res = await fetch(url, options);
+  if (!res.ok) throw new Error(await res.text());
+  return res.json();
+}
+
+async function fetchProducts() {
+  products = await api('/api/products');
+}
+async function fetchStores() {
+  stores = await api('/api/stores');
+}
+
+// ── Populate all <select> dropdowns ───────────────────────────────────────
+function populateSelects() {
+  // Add price tab
+  setOptions('add-product', products, p => ({ v: p.id, t: p.name }));
+  setOptions('add-store',   stores,   s => ({ v: s.id, t: s.name }));
+  // Compare filter (multi-product is just "all" for now)
+  setOptions('compare-filter', products, p => ({ v: p.id, t: p.name }), true);
+  // History tab
+  setOptions('history-product', products, p => ({ v: p.id, t: p.name }));
+  // Manage tab lists
+  renderProductsList();
+  renderStoresList();
+}
+
+function setOptions(id, items, mapper, addAll=false) {
+  const sel = document.getElementById(id);
+  const cur = sel.value;
+  sel.innerHTML = '';
+  if (addAll) sel.innerHTML = '<option value="">Alle Produkte</option>';
+  else        sel.innerHTML = '<option value="">– bitte wählen –</option>';
+  items.forEach(item => {
+    const { v, t } = mapper(item);
+    const opt = document.createElement('option');
+    opt.value = v; opt.textContent = t;
+    if (String(v) === String(cur)) opt.selected = true;
+    sel.appendChild(opt);
+  });
+}
+
+function updateUnitHint() {
+  const pid = document.getElementById('add-product').value;
+  const p = products.find(x => x.id == pid);
+  document.getElementById('unit-hint').textContent = p ? p.unit : 'Einheit';
+}
+
+// ── Tab switching ──────────────────────────────────────────────────────────
+function switchTab(name) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));
+  document.getElementById('tab-' + name).classList.add('active');
+  event.target.classList.add('active');
+  if (name === 'compare') loadCompare();
+  if (name === 'history') { /* wait for user to select product */ }
+  if (name === 'add')     loadRecentPrices();
+}
+
+// ── Compare view ───────────────────────────────────────────────────────────
+async function loadCompare() {
+  const pid = document.getElementById('compare-filter').value;
+  const url = '/api/compare' + (pid ? `?product_ids=${pid}` : '');
+  const el  = document.getElementById('compare-content');
+  el.innerHTML = '<span class="empty">Lade…</span>';
+  try {
+    const { stores: st, products: pr, grid, cheapest } = await api(url);
+    if (!pr.length) { el.innerHTML = '<p class="empty">Noch keine Produkte angelegt.</p>'; return; }
+
+    let html = `<table>
+      <thead><tr>
+        <th>Produkt</th><th>Einheit</th>
+        ${st.map(s => `<th>${s.name}</th>`).join('')}
+      </tr></thead><tbody>`;
+
+    pr.forEach(p => {
+      const storeData = grid[p.id] || {};
+      const cheapSid  = cheapest[p.id];
+
+      // compute max unit_price for savings display
+      const prices = Object.values(storeData).map(d => d.unit_price);
+      const maxUp  = prices.length ? Math.max(...prices) : 0;
+
+      html += `<tr>
+        <td class="product-name">${esc(p.name)}</td>
+        <td class="product-unit">${esc(p.unit)}</td>`;
+
+      st.forEach(s => {
+        const d = storeData[s.id];
+        if (!d) {
+          html += `<td class="price-cell no-data">–</td>`;
+        } else {
+          const isCheap = String(s.id) === String(cheapSid) && prices.length > 1;
+          const savings = isCheap && maxUp > 0
+            ? Math.round((1 - d.unit_price / maxUp) * 100) : 0;
+          const savBadge = savings > 1 ? `<span class="savings">-${savings}%</span>` : '';
+          html += `<td class="price-cell ${isCheap ? 'cheapest' : ''}">
+            <span class="price-main">${fmt(d.price)} €${savBadge}</span>
+            <span class="price-unit">${fmt(d.unit_price)} €/${esc(p.unit)} · ${d.date}</span>
+          </td>`;
+        }
+      });
+
+      html += '</tr>';
+    });
+
+    html += '</tbody></table>';
+    el.innerHTML = html;
+  } catch(e) {
+    el.innerHTML = `<p class="empty">Fehler: ${e.message}</p>`;
+  }
+}
+
+// ── Add price ──────────────────────────────────────────────────────────────
+async function submitPrice() {
+  const product_id = document.getElementById('add-product').value;
+  const store_id   = document.getElementById('add-store').value;
+  const price      = document.getElementById('add-price').value;
+  const quantity   = document.getElementById('add-qty').value;
+  const date       = document.getElementById('add-date').value;
+  const notes      = document.getElementById('add-notes').value;
+
+  if (!product_id || !store_id || !price) {
+    toast('Bitte Produkt, Markt und Preis ausfüllen.', true); return;
+  }
+
+  const body = new FormData();
+  body.append('product_id', product_id);
+  body.append('store_id',   store_id);
+  body.append('price',      price);
+  body.append('quantity',   quantity || 1);
+  body.append('date',       date);
+  body.append('notes',      notes);
+
+  try {
+    await api('/api/prices', { method: 'POST', body });
+    toast('Preis gespeichert ✓');
+    document.getElementById('add-price').value = '';
+    document.getElementById('add-notes').value = '';
+    loadRecentPrices();
+  } catch(e) {
+    toast('Fehler: ' + e.message, true);
+  }
+}
+
+// ── Recent prices ──────────────────────────────────────────────────────────
+async function loadRecentPrices() {
+  // Fetch compare data and extract recent entries for display
+  const el = document.getElementById('recent-prices');
+  try {
+    const { stores: st, products: pr, grid } = await api('/api/compare');
+    let rows = [];
+    pr.forEach(p => {
+      const sd = grid[p.id] || {};
+      Object.entries(sd).forEach(([sid, d]) => {
+        const s = st.find(x => x.id == sid);
+        if (s) rows.push({ product: p.name, store: s.name, price: d.price, unit: p.unit, qty: d.quantity, date: d.date });
+      });
+    });
+    rows.sort((a,b) => b.date.localeCompare(a.date));
+    rows = rows.slice(0, 12);
+    if (!rows.length) { el.innerHTML = '<span class="empty">–</span>'; return; }
+    el.innerHTML = `<table>
+      <thead><tr><th>Datum</th><th>Produkt</th><th>Markt</th><th>Preis</th></tr></thead>
+      <tbody>${rows.map(r => `<tr>
+        <td>${r.date}</td>
+        <td>${esc(r.product)}</td>
+        <td>${esc(r.store)}</td>
+        <td style="font-family:var(--mono)">${fmt(r.price)} € · ${r.qty} ${esc(r.unit)}</td>
+      </tr>`).join('')}</tbody>
+    </table>`;
+  } catch(e) { el.innerHTML = `<span class="empty">–</span>`; }
+}
+
+// ── Products management ────────────────────────────────────────────────────
+function renderProductsList() {
+  const el = document.getElementById('products-list');
+  if (!products.length) { el.innerHTML = '<span class="empty">Noch keine Produkte.</span>'; return; }
+  el.innerHTML = products.map(p => `
+    <div class="item-chip">
+      ${esc(p.name)}
+      <span class="unit-badge">${esc(p.unit)}</span>
+      <button class="btn btn-danger" onclick="deleteProduct(${p.id})">✕</button>
+    </div>`).join('');
+}
+
+async function addProduct() {
+  const name  = document.getElementById('new-product-name').value.trim();
+  const unit  = document.getElementById('new-product-unit').value;
+  const notes = document.getElementById('new-product-notes').value.trim();
+  if (!name) { toast('Name eingeben.', true); return; }
+  const body = new FormData();
+  body.append('name', name); body.append('unit', unit); body.append('notes', notes);
+  try {
+    await api('/api/products', { method: 'POST', body });
+    document.getElementById('new-product-name').value = '';
+    await fetchProducts();
+    populateSelects();
+    toast('Produkt angelegt ✓');
+  } catch(e) { toast('Fehler: ' + e.message, true); }
+}
+
+async function deleteProduct(id) {
+  if (!confirm('Produkt und alle Preise löschen?')) return;
+  await api(`/api/products/${id}`, { method: 'DELETE' });
+  await fetchProducts();
+  populateSelects();
+  toast('Gelöscht.');
+}
+
+// ── Stores management ──────────────────────────────────────────────────────
+function renderStoresList() {
+  const el = document.getElementById('stores-list');
+  if (!stores.length) { el.innerHTML = '<span class="empty">Noch keine Märkte.</span>'; return; }
+  el.innerHTML = stores.map(s => `
+    <div class="item-chip">
+      ${esc(s.name)}
+      <button class="btn btn-danger" onclick="deleteStore(${s.id})">✕</button>
+    </div>`).join('');
+}
+
+async function addStore() {
+  const name = document.getElementById('new-store-name').value.trim();
+  if (!name) { toast('Name eingeben.', true); return; }
+  const body = new FormData();
+  body.append('name', name);
+  try {
+    await api('/api/stores', { method: 'POST', body });
+    document.getElementById('new-store-name').value = '';
+    await fetchStores();
+    populateSelects();
+    toast('Markt hinzugefügt ✓');
+  } catch(e) { toast('Fehler: ' + e.message, true); }
+}
+
+async function deleteStore(id) {
+  if (!confirm('Markt löschen?')) return;
+  await api(`/api/stores/${id}`, { method: 'DELETE' });
+  await fetchStores();
+  populateSelects();
+  toast('Gelöscht.');
+}
+
+// ── History ────────────────────────────────────────────────────────────────
+async function loadHistory() {
+  const pid = document.getElementById('history-product').value;
+  const el  = document.getElementById('history-content');
+  if (!pid) { el.innerHTML = '<p class="empty">Produkt auswählen.</p>'; return; }
+  try {
+    const { product, history } = await api(`/api/history/${pid}`);
+    const storeNames = Object.keys(history);
+    if (!storeNames.length) { el.innerHTML = '<p class="empty">Keine Einträge für dieses Produkt.</p>'; return; }
+    let html = `<p class="section-title">${esc(product.name)} · Preisverlauf</p>
+      <div class="history-grid">`;
+    storeNames.sort().forEach(sn => {
+      const entries = history[sn];
+      html += `<div class="history-store">
+        <h4>${esc(sn)}</h4>
+        ${entries.map(e => `
+          <div class="history-entry">
+            <span>
+              <span class="history-price">${fmt(e.price)} €</span>
+              <span class="price-unit">${fmt(e.unit_price)} €/${esc(product.unit)}</span>
+              ${e.notes ? `<span class="tag">${esc(e.notes)}</span>` : ''}
+            </span>
+            <span style="display:flex;align-items:center;gap:6px">
+              <span class="history-date">${e.date}</span>
+              <button class="btn btn-danger" onclick="deleteEntry(${e.id})">✕</button>
+            </span>
+          </div>`).join('')}
+      </div>`;
+    });
+    html += '</div>';
+    el.innerHTML = html;
+  } catch(e) { el.innerHTML = `<p class="empty">Fehler: ${e.message}</p>`; }
+}
+
+async function deleteEntry(id) {
+  if (!confirm('Eintrag löschen?')) return;
+  await api(`/api/prices/${id}`, { method: 'DELETE' });
+  toast('Eintrag gelöscht.');
+  loadHistory();
+}
+
+// ── Utilities ──────────────────────────────────────────────────────────────
+function fmt(n)  { return Number(n).toFixed(2); }
+function esc(s)  {
+  return String(s)
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;')
+    .replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+let toastTimer;
+function toast(msg, err=false) {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.style.background = err ? 'var(--accent2)' : 'var(--accent)';
+  el.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => el.classList.remove('show'), 2500);
+}
+</script>
+</body>
+</html>

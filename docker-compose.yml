@@ -1,0 +1,11 @@
+services:
+  preisvergleich:
+    build: .
+    container_name: preisvergleich
+    restart: unless-stopped
+    ports:
+      - "8012:8000"          # change host port if needed
+    volumes:
+      - ./data:/app/data     # SQLite DB persists here
+    environment:
+      - DB_PATH=/app/data/prices.db
