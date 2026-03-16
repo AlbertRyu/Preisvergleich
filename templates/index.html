@@ -5,20 +5,21 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Preisvergleich</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
   :root {
-    --bg:       #0f0f0f;
-    --surface:  #1a1a1a;
-    --border:   #2a2a2a;
-    --text:     #e8e8e8;
-    --muted:    #666;
-    --accent:   #c8f03c;   /* lime */
-    --accent2:  #f03c6a;   /* red for expensive */
-    --cheap:    #3cf0a0;   /* green for cheapest */
-    --radius:   6px;
-    --mono: 'DM Mono', monospace;
-    --sans: 'Syne', sans-serif;
+    --bg:       #fdf6e3;   /* solarized base3  */
+    --surface:  #eee8d5;   /* solarized base2  */
+    --border:   #d8cdb4;   /* solarized base1 muted */
+    --text:     #3a3226;   /* warm near-black  */
+    --muted:    #93a1a1;   /* solarized base1  */
+    --accent:   #268bd2;   /* solarized blue   */
+    --accent2:  #dc322f;   /* solarized red    */
+    --cheap:    #2aa198;   /* solarized cyan   */
+    --yellow:   #b58900;   /* solarized yellow */
+    --radius:   8px;
+    --mono: 'IBM Plex Mono', monospace;
+    --sans: 'IBM Plex Sans', sans-serif;
   }
   * { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -32,17 +33,17 @@
   /* ── Layout ── */
   header {
     border-bottom: 1px solid var(--border);
-    padding: 18px 32px;
+    padding: 16px 32px;
     display: flex;
     align-items: center;
     gap: 16px;
+    background: var(--surface);
   }
   header h1 {
-    font-size: 1.1rem;
-    font-weight: 800;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    color: var(--accent);
+    font-size: 1rem;
+    font-weight: 600;
+    letter-spacing: 0.01em;
+    color: var(--text);
   }
   header .subtitle {
     font-family: var(--mono);
@@ -53,8 +54,9 @@
   nav {
     display: flex;
     gap: 4px;
-    padding: 12px 32px;
+    padding: 10px 32px;
     border-bottom: 1px solid var(--border);
+    background: var(--surface);
   }
   nav button {
     background: none;
@@ -62,46 +64,36 @@
     color: var(--muted);
     font-family: var(--sans);
     font-size: 0.8rem;
-    font-weight: 600;
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
+    font-weight: 500;
     padding: 6px 14px;
     border-radius: var(--radius);
     cursor: pointer;
     transition: all 0.15s;
   }
-  nav button:hover { color: var(--text); border-color: var(--border); }
-  nav button.active { background: var(--accent); color: #0f0f0f; border-color: var(--accent); }
+  nav button:hover { color: var(--text); background: var(--border); }
+  nav button.active { background: var(--accent); color: #fff; border-color: var(--accent); }
 
   main { padding: 32px; max-width: 1400px; }
 
   .tab { display: none; }
   .tab.active { display: block; }
 
-  /* ── Section headings ── */
-  .section-title {
-    font-family: var(--mono);
-    font-size: 0.68rem;
-    color: var(--muted);
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-    margin-bottom: 14px;
-  }
-
   /* ── Cards / panels ── */
   .card {
-    background: var(--surface);
+    background: #fff;
     border: 1px solid var(--border);
     border-radius: var(--radius);
     padding: 20px;
     margin-bottom: 20px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.06);
   }
   .card h3 {
-    font-size: 0.85rem;
-    font-weight: 700;
+    font-size: 0.82rem;
+    font-weight: 600;
     margin-bottom: 14px;
-    color: var(--accent);
+    color: var(--muted);
     letter-spacing: 0.04em;
+    text-transform: uppercase;
   }
 
   /* ── Form elements ── */
@@ -116,7 +108,7 @@
     font-family: var(--mono);
     font-size: 0.65rem;
     color: var(--muted);
-    letter-spacing: 0.08em;
+    letter-spacing: 0.06em;
     text-transform: uppercase;
   }
   input, select, textarea {
@@ -130,7 +122,7 @@
     outline: none;
     transition: border-color 0.15s;
   }
-  input:focus, select:focus { border-color: var(--accent); }
+  input:focus, select:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(38,139,210,0.12); }
   input[type="number"] { width: 100px; }
   input[type="date"]   { width: 150px; }
   select               { min-width: 140px; cursor: pointer; }
@@ -138,26 +130,24 @@
   /* ── Buttons ── */
   .btn {
     font-family: var(--sans);
-    font-weight: 700;
-    font-size: 0.78rem;
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
+    font-weight: 500;
+    font-size: 0.8rem;
     padding: 8px 16px;
     border-radius: var(--radius);
     border: none;
     cursor: pointer;
     transition: all 0.15s;
   }
-  .btn-primary { background: var(--accent); color: #0f0f0f; }
-  .btn-primary:hover { filter: brightness(1.1); }
+  .btn-primary { background: var(--accent); color: #fff; }
+  .btn-primary:hover { background: #1a6fa8; }
   .btn-ghost {
     background: none;
     border: 1px solid var(--border);
     color: var(--muted);
   }
-  .btn-ghost:hover { border-color: var(--text); color: var(--text); }
-  .btn-danger { background: none; border: 1px solid #333; color: #666; font-size: 0.7rem; padding: 4px 8px; }
-  .btn-danger:hover { border-color: var(--accent2); color: var(--accent2); }
+  .btn-ghost:hover { border-color: var(--text); color: var(--text); background: var(--surface); }
+  .btn-danger { background: none; border: 1px solid var(--border); color: var(--muted); font-size: 0.7rem; padding: 4px 8px; }
+  .btn-danger:hover { border-color: var(--accent2); color: var(--accent2); background: #fff5f5; }
   .btn-sm { padding: 5px 10px; font-size: 0.72rem; }
 
   /* ── Tags / chips ── */
@@ -167,8 +157,9 @@
     font-size: 0.65rem;
     padding: 2px 8px;
     border-radius: 20px;
-    background: var(--border);
+    background: var(--surface);
     color: var(--muted);
+    border: 1px solid var(--border);
   }
 
   /* ── Lists ── */
@@ -179,10 +170,11 @@
     gap: 6px;
     background: var(--bg);
     border: 1px solid var(--border);
-    border-radius: 4px;
+    border-radius: 6px;
     padding: 5px 10px;
     font-family: var(--mono);
     font-size: 0.78rem;
+    color: var(--text);
   }
   .item-chip .unit-badge {
     font-size: 0.6rem;
@@ -190,6 +182,7 @@
     border: 1px solid var(--border);
     border-radius: 3px;
     padding: 1px 5px;
+    background: var(--surface);
   }
 
   /* ── Comparison table ── */
@@ -204,27 +197,28 @@
     text-align: left;
     font-family: var(--sans);
     font-size: 0.65rem;
-    font-weight: 700;
-    letter-spacing: 0.1em;
+    font-weight: 600;
+    letter-spacing: 0.06em;
     text-transform: uppercase;
     color: var(--muted);
     padding: 8px 12px;
-    border-bottom: 1px solid var(--border);
+    border-bottom: 2px solid var(--border);
     white-space: nowrap;
+    background: var(--surface);
   }
   td {
-    padding: 8px 12px;
-    border-bottom: 1px solid #1e1e1e;
+    padding: 9px 12px;
+    border-bottom: 1px solid var(--border);
     vertical-align: middle;
   }
-  tr:hover td { background: #161616; }
+  tr:hover td { background: var(--surface); }
 
   .price-cell {
     text-align: right;
     min-width: 90px;
     position: relative;
   }
-  .price-main { font-weight: 500; }
+  .price-main { font-weight: 500; color: var(--text); }
   .price-unit {
     display: block;
     font-size: 0.62rem;
@@ -240,7 +234,7 @@
     top: 50%;
     transform: translateY(-50%);
   }
-  .price-cell.no-data { color: #333; text-align: center; }
+  .price-cell.no-data { color: var(--border); text-align: center; }
   td.product-name { font-weight: 500; color: var(--text); }
   td.product-unit { color: var(--muted); font-size: 0.7rem; }
 
@@ -248,8 +242,8 @@
   .savings {
     font-size: 0.62rem;
     color: var(--cheap);
-    background: rgba(60,240,160,0.08);
-    border: 1px solid rgba(60,240,160,0.2);
+    background: rgba(42,161,152,0.1);
+    border: 1px solid rgba(42,161,152,0.25);
     border-radius: 3px;
     padding: 1px 5px;
     margin-left: 6px;
@@ -263,17 +257,18 @@
     margin-top: 14px;
   }
   .history-store {
-    background: var(--bg);
+    background: #fff;
     border: 1px solid var(--border);
     border-radius: var(--radius);
     padding: 14px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
   }
   .history-store h4 {
-    font-size: 0.75rem;
-    font-weight: 700;
+    font-size: 0.72rem;
+    font-weight: 600;
     color: var(--accent);
     margin-bottom: 10px;
-    letter-spacing: 0.06em;
+    letter-spacing: 0.04em;
     text-transform: uppercase;
   }
   .history-entry {
@@ -287,17 +282,18 @@
   }
   .history-entry:last-child { border-bottom: none; }
   .history-date { color: var(--muted); font-size: 0.65rem; }
-  .history-price { font-weight: 500; }
+  .history-price { font-weight: 500; color: var(--text); }
 
   /* ── Toast ── */
   #toast {
     position: fixed; bottom: 24px; right: 24px;
-    background: var(--accent); color: #0f0f0f;
+    background: var(--text); color: var(--bg);
     font-family: var(--mono); font-size: 0.75rem; font-weight: 500;
     padding: 10px 18px; border-radius: var(--radius);
     opacity: 0; transform: translateY(8px);
     transition: all 0.2s; pointer-events: none;
     z-index: 999;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
   }
   #toast.show { opacity: 1; transform: translateY(0); }
 
@@ -307,13 +303,21 @@
   @media (max-width: 700px) { .two-col { grid-template-columns: 1fr; } main { padding: 16px; } }
   .filter-bar { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 20px; align-items: center; }
   .filter-bar label { font-family: var(--mono); font-size: 0.65rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.08em; }
+  .section-title {
+    font-family: var(--mono);
+    font-size: 0.65rem;
+    color: var(--muted);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    margin-bottom: 14px;
+  }
 </style>
 </head>
 <body>
 
 <header>
   <h1>Preisvergleich</h1>
-  <span class="subtitle">// supermarkt tracker</span>
+  <span class="subtitle">Supermarkt · Preisvergleich</span>
 </header>
 
 <nav>
